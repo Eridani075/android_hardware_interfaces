@@ -5,3 +5,8 @@ service vendor.hwcomposer-2-4 /vendor/bin/hw/android.hardware.graphics.composer@
     capabilities SYS_NICE
     onrestart restart surfaceflinger
     task_profiles ServiceCapacityLow
+    # libdpps' DppsServer needs this control socket from init (same declaration as
+    # the QC composer rc). Without it DppsServer::InitServer fails before it
+    # initializes its fd table, and the destructor then close()s uninitialized
+    # entries, randomly killing live fds (e.g. the SDM event fds).
+    socket pps stream 0660 system system
